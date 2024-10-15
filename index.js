@@ -27,10 +27,18 @@ const todo = document.querySelector(".todoList > ul");
 function createTodoCard() {
   todos.forEach((el) => {
     const card = document.createElement("li");
+    card.className = "todo";
     const checkBox = document.createElement("input");
     const label = document.createElement("label");
-    card.append(checkBox);
-    card.append(label);
+    const textWrap = document.createElement("span");
+    const remove = document.createElement("button");
+    card.append(textWrap);
+    textWrap.append(checkBox);
+    textWrap.append(label);
+    card.append(remove);
+    remove.setAttribute("value", el.id);
+    remove.className = "remove";
+    remove.innerText = "삭제";
     label.textContent = el.text;
     label.setAttribute("for", el.id);
     checkBox.setAttribute("type", "checkbox");
@@ -58,6 +66,7 @@ for (const box of checkBoxes) {
 const tabs = document.querySelectorAll("header>button");
 tabs.forEach((tab) => {
   tab.addEventListener("click", (e) => {
+    console.log(e.target.value);
     const currentTab = e.target.value;
     checkBoxes.forEach((el) => {
       const block = (el.parentNode.style.display = "block");
@@ -71,3 +80,26 @@ tabs.forEach((tab) => {
     });
   });
 });
+
+//input text에 글자 입력하면 todos에 목록을 추가한다.
+const submit = document.querySelector("form");
+submit.addEventListener("submit", handleFormSubmit);
+const textInput = document.querySelector(".inputTodo > input");
+
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const text = textInput.value;
+  if (text.trim().length < 1) return;
+  const newTodo = { id: todos.length + 1, text, status: "notCompleted" };
+  todos.push(newTodo);
+  todo.innerHTML = "";
+  createTodoCard();
+  textInput.value = "";
+}
+textInput.addEventListener("input", addTextInput);
+function addTextInput(e) {
+  const newTodo = e.target.value;
+}
+
+const removeBtns = document.querySelectorAll(".todo .remove");
+console.log(removeBtns);
