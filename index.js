@@ -1,35 +1,30 @@
-let todos = [
-  {
-    id: 0,
-    text: "집 청소하기",
-    status: "notCompleted",
-  },
-  {
-    id: 1,
-    text: "공부하기",
-    status: "notCompleted",
-  },
-  {
-    id: 2,
-    text: "산책하기",
-    status: "notCompleted",
-  },
-  {
-    id: 3,
-    text: "양치하기",
-    status: "notCompleted",
-  },
-];
-
-const todo = document.querySelector(".todoList > ul");
+const todoWrap = document.querySelector(".todoList > ul");
 const tabs = document.querySelectorAll("header>button");
+let todos = getTodosFromLocal();
+console.log(todos);
 
-//카드를 감싸주는 li 생성
+document.addEventListener("DOMContentLoaded", () => {
+  createTodoCard();
+});
+tabs.forEach((tab) => {
+  tab.addEventListener("click", (e) => handleShowTodos(e));
+});
+
+//로컬 스토리지에 todos 저장
+function saveTodos() {
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+//로컬 스토리지에서 todos 불러오기
+function getTodosFromLocal() {
+  const savedTodos = localStorage.getItem("todos");
+  return savedTodos ? JSON.parse(savedTodos) : [];
+}
+
+//todo 리스트 생성
 function createTodoCard() {
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", (e) => handleShowTodos(e));
-  });
-  todos.forEach((el) => {
+  todoWrap.innerHTML = "";
+
+  todos.forEach((todo) => {
     const card = document.createElement("li");
     card.className = "todo";
     const checkBox = document.createElement("input");
@@ -42,32 +37,38 @@ function createTodoCard() {
     textWrap.append(checkBox);
     textWrap.append(label);
     card.append(remove);
-    remove.setAttribute("value", el.id);
+    remove.setAttribute("value", todo.id);
     remove.className = "remove";
     remove.innerText = "삭제";
     remove.setAttribute("type", "button");
-    label.textContent = el.text;
-    label.setAttribute("for", el.id);
+    label.textContent = todo.text;
+    label.setAttribute("for", todo.id);
+    checkBox.checked = todo.checked;
     checkBox.setAttribute("type", "checkbox");
-    checkBox.setAttribute("id", el.id);
-    checkBox.setAttribute("value", el.status);
-    checkBox.addEventListener("change", (e) => setInputCheckedValue(e));
-    todo.append(card);
+    checkBox.setAttribute("id", todo.id);
+    checkBox.setAttribute("value", todo.status);
+    checkBox.addEventListener("change", () => {
+      // 체크박스 상태 변경 시 상태 업데이트
+      updateTodoChecked(checkBox.id, checkBox.checked);
+    });
+    todoWrap.append(card);
   });
 }
-createTodoCard();
-
-//input의 상태가 변경될때마다 체크되면 value를 complete로 그렇지 않으면 notComplete로 업데이트
-const setInputCheckedValue = (e) => {
-  const currentBox = e.target;
-  currentBox.checked
-    ? currentBox.setAttribute("value", "Completed")
-    : currentBox.setAttribute("value", "notCompleted");
-};
+// checked 상태 변경 후 로컬 스토리지 업데이트
+function updateTodoChecked(id, checked) {
+  todos = getTodosFromLocal();
+  const current = todos.findIndex((v) => v.id === Number(id));
+  console.log(current);
+  todos[current].checked = checked;
+  todos[current].status = checked ? "Completed" : "notCompleted";
+  saveTodos(todos);
+  createTodoCard();
+}
 
 //header 버튼 안에있는 버튼이 클릭되면 일치하는 todo만 보여주기
-const handleShowTodos = (e) => {
+function handleShowTodos(e) {
   const currentTab = e.target.value;
+  console.log(currentTab);
   const checkBoxes = document.querySelectorAll(".input-wrap>input");
   checkBoxes.forEach((el) => {
     const block = (el.parentNode.parentNode.style.display = "block");
@@ -79,39 +80,50 @@ const handleShowTodos = (e) => {
         : (el.parentNode.parentNode.style.display = "none");
     }
   });
-};
+}
 
 //input text에 글자 입력하면 todos에 목록을 추가한다.
 const submit = document.querySelector("form");
 submit.addEventListener("submit", handleFormSubmit);
 const textInput = document.querySelector(".inputTodo > input");
 
+//가장 큰 id에서 +1 새로운 아이디 만들기
+function setId(todos) {
+  if (todos.length === 0) return 0;
+  const newId = Math.max(...todos.map((todo) => todo.id));
+  return newId + 1;
+}
+// 새로운 todo 입력시
 function handleFormSubmit(e) {
-  console.log("전송", e.key);
   e.preventDefault();
   const text = textInput.value;
   console.log(text.length);
   if (text.trim().length === 0) return;
-  const newTodo = { id: todos.length + 1, text, status: "notCompleted" };
+  console.log("길이", todos.length);
+  const newTodo = {
+    id: setId(todos),
+    text,
+    status: "notCompleted",
+    checked: false,
+  };
   todos.push(newTodo);
-  todo.innerHTML = "";
+
+  saveTodos(todos);
   createTodoCard();
   textInput.value = "";
 }
 textInput.addEventListener("input", addTextInput);
 function addTextInput(e) {
-  console.log("입력", e);
   const newTodo = e.target.value;
 }
 
 // 삭제 버튼을 누르면 해당 todo를 제거해준다.
 
 const removeCurrnetTodo = (e) => {
-  console.log(e.target, e);
   const removeTarget = Number(e.target.value);
   const idx = todos.findIndex((v) => v.id === removeTarget);
   todos.splice(idx, 1);
-  console.log("삭제됨", todos);
-  todo.innerHTML = "";
+
+  saveTodos(todos);
   createTodoCard();
 };
