@@ -45,6 +45,7 @@ function createTodoCard() {
     remove.setAttribute("value", el.id);
     remove.className = "remove";
     remove.innerText = "삭제";
+    remove.setAttribute("type", "button");
     label.textContent = el.text;
     label.setAttribute("for", el.id);
     checkBox.setAttribute("type", "checkbox");
@@ -86,8 +87,8 @@ submit.addEventListener("submit", handleFormSubmit);
 const textInput = document.querySelector(".inputTodo > input");
 
 function handleFormSubmit(e) {
+  console.log("전송", e.key);
   e.preventDefault();
-  console.log("전송");
   const text = textInput.value;
   console.log(text.length);
   if (text.trim().length === 0) return;
@@ -104,19 +105,13 @@ function addTextInput(e) {
 }
 
 // 삭제 버튼을 누르면 해당 todo를 제거해준다.
-const removeBtns = document.querySelectorAll(".todo .remove");
 
 const removeCurrnetTodo = (e) => {
-  console.log("삭제", e);
+  console.log(e.target, e);
   const removeTarget = Number(e.target.value);
-  console.log(removeTarget);
-  todos = todos.filter((todo) => {
-    return todo.id !== removeTarget;
-  });
+  const idx = todos.findIndex((v) => v.id === removeTarget);
+  todos.splice(idx, 1);
+  console.log("삭제됨", todos);
   todo.innerHTML = "";
   createTodoCard();
-};
-
-const handleKeyPress = (e) => {
-  console.log(e.key);
 };
