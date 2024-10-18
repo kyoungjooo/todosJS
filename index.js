@@ -1,11 +1,12 @@
 const todoWrap = document.querySelector(".todoList > ul");
 const tabs = document.querySelectorAll("header>button");
 let todos = getTodosFromLocal();
-console.log(todos);
 
 document.addEventListener("DOMContentLoaded", () => {
   createTodoCard();
 });
+
+//탭을 누를때마다 value와 status가 같은 todo만 보여주기
 tabs.forEach((tab) => {
   tab.addEventListener("click", (e) => handleShowTodos(e));
 });
@@ -14,6 +15,7 @@ tabs.forEach((tab) => {
 function saveTodos() {
   localStorage.setItem("todos", JSON.stringify(todos));
 }
+
 //로컬 스토리지에서 todos 불러오기
 function getTodosFromLocal() {
   const savedTodos = localStorage.getItem("todos");
@@ -23,7 +25,6 @@ function getTodosFromLocal() {
 //todo 리스트 생성
 function createTodoCard() {
   todoWrap.innerHTML = "";
-
   todos.forEach((todo) => {
     const card = document.createElement("li");
     card.className = "todo";
@@ -31,16 +32,16 @@ function createTodoCard() {
     const label = document.createElement("label");
     const textWrap = document.createElement("span");
     textWrap.className = "input-wrap";
-    const remove = document.createElement("button");
-    remove.addEventListener("click", (e) => removeCurrnetTodo(e));
-    card.append(textWrap);
     textWrap.append(checkBox);
     textWrap.append(label);
-    card.append(remove);
+    card.append(textWrap);
+    const remove = document.createElement("button");
+    remove.addEventListener("click", (e) => removeCurrnetTodo(e));
     remove.setAttribute("value", todo.id);
     remove.className = "remove";
     remove.innerText = "삭제";
     remove.setAttribute("type", "button");
+    card.append(remove);
     label.textContent = todo.text;
     label.setAttribute("for", todo.id);
     checkBox.checked = todo.checked;
@@ -48,17 +49,18 @@ function createTodoCard() {
     checkBox.setAttribute("id", todo.id);
     checkBox.setAttribute("value", todo.status);
     checkBox.addEventListener("change", () => {
-      // 체크박스 상태 변경 시 상태 업데이트
+      // 체크박스 상태 변경 시 업데이트
       updateTodoChecked(checkBox.id, checkBox.checked);
     });
     todoWrap.append(card);
   });
 }
+
 // checked 상태 변경 후 로컬 스토리지 업데이트
 function updateTodoChecked(id, checked) {
+  console.log("변경됨");
   todos = getTodosFromLocal();
   const current = todos.findIndex((v) => v.id === Number(id));
-  console.log(current);
   todos[current].checked = checked;
   todos[current].status = checked ? "Completed" : "notCompleted";
   saveTodos(todos);
@@ -68,15 +70,14 @@ function updateTodoChecked(id, checked) {
 //header 버튼 안에있는 버튼이 클릭되면 일치하는 todo만 보여주기
 function handleShowTodos(e) {
   const currentTab = e.target.value;
-  console.log(currentTab);
   const checkBoxes = document.querySelectorAll(".input-wrap>input");
   checkBoxes.forEach((el) => {
-    const block = (el.parentNode.parentNode.style.display = "block");
+    const flex = (el.parentNode.parentNode.style.display = "flex");
     if (currentTab === "All") {
-      block;
+      flex;
     } else {
       currentTab === el.value
-        ? block
+        ? flex
         : (el.parentNode.parentNode.style.display = "none");
     }
   });
@@ -97,7 +98,6 @@ function setId(todos) {
 function handleFormSubmit(e) {
   e.preventDefault();
   const text = textInput.value;
-  console.log(text.length);
   if (text.trim().length === 0) return;
   console.log("길이", todos.length);
   const newTodo = {
@@ -107,7 +107,6 @@ function handleFormSubmit(e) {
     checked: false,
   };
   todos.push(newTodo);
-
   saveTodos(todos);
   createTodoCard();
   textInput.value = "";
