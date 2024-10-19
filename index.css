@@ -147,13 +147,16 @@ table {
   width: 33.3333%;
   cursor: pointer;
 }
+.todoListWrap > header > button:hover {
+  background-color: #e1e1e1;
+}
 .todoListWrap > header > button + button {
   border-left: 1px solid #fff;
 }
 .todoList > ul {
   height: 300px;
   overflow: scroll;
-  padding-top: 24px;
+  padding: 24px 0;
 }
 .todoList .todo {
   display: flex;
@@ -162,7 +165,9 @@ table {
   padding: 8px 12px;
   cursor: pointer;
 }
-
+.todoList .todo .input-wrap {
+  width: 100%;
+}
 .todoList .todo .remove {
   text-indent: -9999px;
   background-image: url("./images/delete.svg");
@@ -186,6 +191,7 @@ table {
 }
 .input-wrap > label {
   display: flex;
+  width: inherit;
   align-items: center;
   cursor: pointer;
 }
@@ -207,6 +213,10 @@ table {
   padding: 2px 24px;
   border: 0;
   margin-left: 4px;
+  cursor: pointer;
+}
+.inputTodo > input[type="submit"]:hover {
+  background-color: #e1e1e1;
 }
 .inputTodo > input[type="text"] {
   outline: none;

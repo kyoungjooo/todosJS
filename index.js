@@ -117,12 +117,10 @@ function addTextInput(e) {
 }
 
 // 삭제 버튼을 누르면 해당 todo를 제거해준다.
-
 const removeCurrnetTodo = (e) => {
   const removeTarget = Number(e.target.value);
   const idx = todos.findIndex((v) => v.id === removeTarget);
   todos.splice(idx, 1);
-
   saveTodos(todos);
   createTodoCard();
 };
