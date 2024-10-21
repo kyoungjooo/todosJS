@@ -167,6 +167,13 @@ table {
 }
 .todoList .todo .input-wrap {
   width: 100%;
+  position: relative;
+}
+.todoList .todo .input-wrap > input[type="text"] {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30px;
 }
 .todoList .todo .remove {
   text-indent: -9999px;
@@ -222,4 +229,18 @@ table {
   outline: none;
   font-size: 16px;
   padding: 0 8px;
+}
+.todo .edit-btn {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  background-image: url("./images/edit.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: transparent;
+  border: 0;
+  position: relative;
+  top: 1px;
+  cursor: pointer;
 }
