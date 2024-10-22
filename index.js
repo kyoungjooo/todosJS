@@ -21,6 +21,8 @@ function checkCurrentTarget(e) {
     removeCurrnetTodo(e);
   } else if (e.target.matches("label")) {
     updateTodoChecked(e);
+  } else if (e.target.matches(".edit-btn")) {
+    editTodo(e);
   }
 }
 
@@ -63,8 +65,7 @@ function createTodoCard(todo) {
 
     //편집 기능 추가
     edit.className = "edit-btn";
-    //edit.addEventListener("click", (e) => editTodo(e));
-    //edit.setAttribute("value", todo.id);
+    edit.setAttribute("value", false);
     const todoInput = document.createElement("input");
     todoInput.setAttribute("type", "text");
     textWrap.append(todoInput);
@@ -89,10 +90,16 @@ function createTodoCard(todo) {
     todoWrap.append(card);
   });
 }
-
 //todo 수정하기
 function editTodo(e) {
-  console.log(e.target);
+  const editBtn = e.target;
+  const current = editBtn.parentNode.querySelector("input[type='text']");
+  if (editBtn.value === "false") {
+    editBtn.value = true;
+    current.focus();
+  } else {
+    editBtn.value = false;
+  }
 }
 // checked 상태 변경 후 로컬 스토리지 업데이트
 function updateTodoChecked(e) {
