@@ -19,6 +19,8 @@ function checkCurrentTarget(e) {
   console.log("이거!", e.target);
   if (e.target.matches("button.remove")) {
     removeCurrnetTodo(e);
+  } else if (e.target.matches("label")) {
+    updateTodoChecked(e);
   }
 }
 
@@ -44,7 +46,7 @@ function getTodosFromLocal() {
 }
 
 //todo 리스트 생성
-function createTodoCard() {
+function createTodoCard(todo) {
   todoWrap.innerHTML = "";
   todos.forEach((todo) => {
     const card = document.createElement("li");
@@ -82,21 +84,27 @@ function createTodoCard() {
     checkBox.setAttribute("type", "checkbox");
     //checkBox.setAttribute("id", todo.id);
     checkBox.setAttribute("value", todo.status);
-    //checkBox.addEventListener("change", () => {// 체크박스 상태 변경 시 업데이트updateTodoChecke(checkBox.id, checkBox.checked);});
+    //새로운 todo가 추가된거면 li의 맨 뒤에 새로운 li를 추가하고
+    //아니라면 todoWrap에 카드를 추가
     todoWrap.append(card);
   });
 }
+
 //todo 수정하기
 function editTodo(e) {
   console.log(e.target);
 }
 // checked 상태 변경 후 로컬 스토리지 업데이트
-function updateTodoChecked(id, checked) {
-  console.log("변경됨");
+function updateTodoChecked(e) {
+  const currentChecked = e.target.previousElementSibling;
   todos = getTodosFromLocal();
-  //const current = todos.findIndex((v) => v.id === Number(id));
-  todos[current].checked = checked;
-  todos[current].status = checked ? "Completed" : "notCompleted";
+  if (currentChecked.checked) {
+    currentChecked.checked = false;
+    currentChecked.value = "notCompleted";
+  } else {
+    currentChecked.checked = true;
+    currentChecked.value = "Completed";
+  }
   saveTodos();
 }
 
