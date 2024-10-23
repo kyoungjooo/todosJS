@@ -1,16 +1,18 @@
 const todoWrap = document.querySelector(".todoList > ul");
 const tabsWrap = document.querySelector(".todoListWrap > header");
-let todos = getTodosFromLocal();
 const todoEditInput = document.querySelectorAll(".input-wrap");
-document.addEventListener("DOMContentLoaded", () => createTodoCard());
+
+document.addEventListener("DOMContentLoaded", getTodosFromLocal());
 
 //탭을 누를때마다 value와 status가 같은 todo만 보여주기
 tabsWrap.addEventListener("click", (e) => handleShowTodos(e));
 
 //todos 리스트를 감싸는 부모에 이벤트 걸어놓기
 todoWrap.addEventListener("click", (e) => checkCurrentTarget(e));
+
 //리스트의 index 넣어주기
 function checkCurrentTarget(e) {
+  console.log(e);
   const todos = todoWrap.getElementsByClassName("todo");
   for (let i = 0; i < todos.length; i++) {
     todos[i].setAttribute("data-index", i);
@@ -19,9 +21,11 @@ function checkCurrentTarget(e) {
   console.log("이거!", e.target);
   if (e.target.matches("button.remove")) {
     removeCurrnetTodo(e);
-  } else if (e.target.matches("label")) {
+  }
+  if (e.target.matches("label")) {
     updateTodoChecked(e);
-  } else if (e.target.matches(".edit-btn")) {
+  }
+  if (e.target.matches(".edit-btn")) {
     editTodo(e);
   }
 }
@@ -37,20 +41,38 @@ const removeCurrnetTodo = (e) => {
 };
 
 //로컬 스토리지에 todos 저장
-function saveTodos() {
+function saveTodos(todo) {
+  let todos = JSON.parse(localStorage.getItem("todos"));
+  todos.push(todo);
   localStorage.setItem("todos", JSON.stringify(todos));
 }
+//로컬 스토리지 상태 업데이트
+function editLocalStorage(index, checked) {
+  console.log(index, checked);
+  //해당 index 의 checked와 상태를 업데이트
+  let todos = JSON.parse(localStorage.getItem("todos"));
+  todos[index].checked = checked;
+  todos[index].checked
+    ? (todos[index].status = "Completed")
+    : (todos[index].status = "notCompleted");
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+//화면이 로드되면 기존 로컬에 있는 todos 불러온다
+//없으면 빈 배열을 넣어준다.
 
 //로컬 스토리지에서 todos 불러오기
 function getTodosFromLocal() {
   const savedTodos = localStorage.getItem("todos");
-  return savedTodos ? JSON.parse(savedTodos) : [];
+  if (!savedTodos) {
+    localStorage.setItem("todos", "[]");
+  } else {
+    JSON.parse(savedTodos).forEach((todo) => {
+      addTodo(todo);
+    });
+  }
 }
-//todo 리스트 생성
-function createTodoCard() {
-  todoWrap.innerHTML = "";
-  todos.forEach((todo) => addTodo(todo));
-}
+
 //newTodo가 추가되면 기존의 todo 마지막에 새로운 todo를 추가
 function addTodo(todo) {
   const card = document.createElement("li");
@@ -67,12 +89,13 @@ function addTodo(todo) {
 
   //편집 기능 추가
   edit.className = "edit-btn";
+  edit.setAttribute("type", "button");
   edit.setAttribute("value", false);
   const todoInput = document.createElement("input");
   todoInput.setAttribute("type", "text");
   textWrap.append(todoInput);
-  console.log(todoInput);
   todoInput.setAttribute("value", todo.text);
+  todoInput.disabled = true;
   card.append(edit);
   remove.className = "remove";
   remove.innerText = "삭제";
@@ -86,20 +109,28 @@ function addTodo(todo) {
 
 //todo 수정하기
 function editTodo(e) {
+  e.preventDefault();
   const editBtn = e.target;
   const current = editBtn.parentNode.querySelector("input[type='text']");
   if (editBtn.value === "false") {
     editBtn.value = true;
+    current.disabled = false;
     current.focus();
     current.setSelectionRange(current.value.length, current.value.length);
   } else {
     editBtn.value = false;
+    current.disabled = true;
   }
+  //로컬 내용 변경
+  let todos = JSON.parse(localStorage.getItem("todos"));
+  let currentIndex = Number(editBtn.parentNode.dataset.index);
+  todos[currentIndex].text = current.value;
+  localStorage.setItem("todos", JSON.stringify(todos));
 }
 // checked 상태 변경 후 로컬 스토리지 업데이트
 function updateTodoChecked(e) {
   const currentChecked = e.target.previousElementSibling;
-  todos = getTodosFromLocal();
+  console.log("변경", currentChecked);
   if (currentChecked.checked) {
     currentChecked.checked = false;
     currentChecked.value = "notCompleted";
@@ -107,7 +138,9 @@ function updateTodoChecked(e) {
     currentChecked.checked = true;
     currentChecked.value = "Completed";
   }
-  saveTodos();
+  //체크박스가 업데이트된 부모 찾는다.
+  let currentIndex = Number(currentChecked.parentNode.parentNode.dataset.index);
+  editLocalStorage(currentIndex, currentChecked.checked);
 }
 
 //header 버튼 안에있는 버튼이 클릭되면 일치하는 todo만 보여주기
@@ -127,7 +160,6 @@ function handleShowTodos(e) {
     }
   });
 }
-
 //input text에 글자 입력하면 todos에 목록을 추가한다.
 const submit = document.querySelector("form");
 submit.addEventListener("submit", handleFormSubmit);
@@ -143,8 +175,7 @@ function handleFormSubmit(e) {
     status: "notCompleted",
     checked: false,
   };
-  todos.push(newTodo);
-  saveTodos();
+  saveTodos(newTodo);
   addTodo(newTodo);
   //기존의 todo에 새로운 todo를 뒤에 추가하는 것
   textInput.value = "";
