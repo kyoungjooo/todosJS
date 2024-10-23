@@ -113,16 +113,17 @@ function updateTodoChecked(e) {
 //header 버튼 안에있는 버튼이 클릭되면 일치하는 todo만 보여주기
 function handleShowTodos(e) {
   const currentTab = e.target.value;
-
-  const checkBoxes = document.querySelectorAll(".input-wrap>input");
+  const checkBoxes = document.querySelectorAll(
+    ".input-wrap>input[type='checkbox']"
+  );
   checkBoxes.forEach((el) => {
-    const flex = (el.parentNode.parentNode.style.display = "flex");
+    const li = el.parentNode.parentNode;
     if (currentTab === "All") {
-      flex;
+      li.style.display = "flex";
     } else {
       currentTab === el.value
-        ? flex
-        : (el.parentNode.parentNode.style.display = "none");
+        ? (li.style.display = "flex")
+        : (li.style.display = "none");
     }
   });
 }
@@ -131,13 +132,6 @@ function handleShowTodos(e) {
 const submit = document.querySelector("form");
 submit.addEventListener("submit", handleFormSubmit);
 const textInput = document.querySelector(".inputTodo > input");
-
-//가장 큰 id에서 +1 새로운 아이디 만들기
-// function setId(todos) {
-//   if (todos.length === 0) return 0;
-//   const newId = Math.max(...todos.map((todo) => todo.id));
-//   return newId + 1;
-// }
 
 // 새로운 todo 입력시
 function handleFormSubmit(e) {
