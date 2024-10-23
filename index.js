@@ -46,50 +46,44 @@ function getTodosFromLocal() {
   const savedTodos = localStorage.getItem("todos");
   return savedTodos ? JSON.parse(savedTodos) : [];
 }
-
 //todo 리스트 생성
-function createTodoCard(todo) {
+function createTodoCard() {
   todoWrap.innerHTML = "";
-  todos.forEach((todo) => {
-    const card = document.createElement("li");
-    card.className = "todo";
-    const checkBox = document.createElement("input");
-    const label = document.createElement("label");
-    const textWrap = document.createElement("span");
-    textWrap.className = "input-wrap";
-    textWrap.append(checkBox);
-    textWrap.append(label);
-    card.append(textWrap);
-    const remove = document.createElement("button");
-    const edit = document.createElement("button");
-
-    //편집 기능 추가
-    edit.className = "edit-btn";
-    edit.setAttribute("value", false);
-    const todoInput = document.createElement("input");
-    todoInput.setAttribute("type", "text");
-    textWrap.append(todoInput);
-    console.log(todoInput);
-    todoInput.setAttribute("value", todo.text);
-    card.append(edit);
-    //remove.addEventListener("click", (e) => removeCurrnetTodo(e));
-    //remove.setAttribute("value", todo.id);
-    remove.className = "remove";
-    remove.innerText = "삭제";
-    remove.setAttribute("type", "button");
-    card.append(remove);
-
-    //label.textContent = todo.text;
-    //label.setAttribute("for", todo.id);
-    checkBox.checked = todo.checked;
-    checkBox.setAttribute("type", "checkbox");
-    //checkBox.setAttribute("id", todo.id);
-    checkBox.setAttribute("value", todo.status);
-    //새로운 todo가 추가된거면 li의 맨 뒤에 새로운 li를 추가하고
-    //아니라면 todoWrap에 카드를 추가
-    todoWrap.append(card);
-  });
+  todos.forEach((todo) => addTodo(todo));
 }
+//newTodo가 추가되면 기존의 todo 마지막에 새로운 todo를 추가
+function addTodo(todo) {
+  const card = document.createElement("li");
+  card.className = "todo";
+  const checkBox = document.createElement("input");
+  const label = document.createElement("label");
+  const textWrap = document.createElement("span");
+  textWrap.className = "input-wrap";
+  textWrap.append(checkBox);
+  textWrap.append(label);
+  card.append(textWrap);
+  const remove = document.createElement("button");
+  const edit = document.createElement("button");
+
+  //편집 기능 추가
+  edit.className = "edit-btn";
+  edit.setAttribute("value", false);
+  const todoInput = document.createElement("input");
+  todoInput.setAttribute("type", "text");
+  textWrap.append(todoInput);
+  console.log(todoInput);
+  todoInput.setAttribute("value", todo.text);
+  card.append(edit);
+  remove.className = "remove";
+  remove.innerText = "삭제";
+  remove.setAttribute("type", "button");
+  card.append(remove);
+  checkBox.checked = todo.checked;
+  checkBox.setAttribute("type", "checkbox");
+  checkBox.setAttribute("value", todo.status);
+  todoWrap.append(card);
+}
+
 //todo 수정하기
 function editTodo(e) {
   const editBtn = e.target;
@@ -97,6 +91,7 @@ function editTodo(e) {
   if (editBtn.value === "false") {
     editBtn.value = true;
     current.focus();
+    current.setSelectionRange(current.value.length, current.value.length);
   } else {
     editBtn.value = false;
   }
@@ -156,6 +151,7 @@ function handleFormSubmit(e) {
   };
   todos.push(newTodo);
   saveTodos();
-  createTodoCard();
+  addTodo(newTodo);
+  //기존의 todo에 새로운 todo를 뒤에 추가하는 것
   textInput.value = "";
 }
